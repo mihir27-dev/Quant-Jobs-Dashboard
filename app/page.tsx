@@ -114,7 +114,7 @@ async function getLiveJobs() {
 
 function FeedSkeleton() {
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
+    <div className="h-screen h-[100dvh] bg-slate-50 text-slate-900 flex flex-col font-sans">
       {/* Header Skeleton */}
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur shadow-sm">
         <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
@@ -135,7 +135,7 @@ function FeedSkeleton() {
       </header>
 
       {/* Main Content Skeleton */}
-      <div className="flex-1 flex max-w-7xl w-full mx-auto overflow-hidden h-[calc(100vh-61px)]">
+      <div className="flex-1 min-h-0 flex max-w-7xl w-full mx-auto overflow-hidden">
         {/* Sidebar Filter Skeleton */}
         <aside className="w-64 bg-white border-r border-slate-200/80 p-5 hidden md:flex flex-col gap-6">
           <div className="flex items-center justify-between pb-2 border-b border-slate-100">

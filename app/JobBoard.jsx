@@ -606,7 +606,7 @@ export default function QuantJobFinderV2({ initialJobs }) {
       }
     
       return (
-        <div className={`min-h-screen relative overflow-hidden ${
+        <div className={`h-screen h-[100dvh] relative overflow-hidden ${
           theme === "dark" ? "dark bg-[#030508] text-slate-100" : "bg-slate-50 text-slate-900"
         } flex flex-col font-sans antialiased transition-colors duration-300`}>
           {/* Inject Custom Style Block for 2050 Cyber-Quant UI */}
@@ -734,7 +734,7 @@ export default function QuantJobFinderV2({ initialJobs }) {
       </header>
 
       {/* Main Container */}
-      <div className="flex-1 flex max-w-7xl w-full mx-auto overflow-hidden h-[calc(100vh-61px)] relative z-10">
+      <div className="flex-1 min-h-0 flex max-w-7xl w-full mx-auto overflow-hidden relative z-10">
         {/* ==========================================
          * SIDEBAR FILTER PANEL (Desktop)
          * ==========================================*/}
