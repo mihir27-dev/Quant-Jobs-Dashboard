@@ -110,6 +110,13 @@ export function assembleJob(raw: RawPosting, firm: FirmConfig): Job | null {
   const role = classifyRole(raw.title, raw.description);
   if (!role) return null; // skip roles that aren't quant trading/research/dev/DS
 
+  // Stale Job Pruning (Phase 3)
+  if (raw.postedAt) {
+    const postedDate = new Date(raw.postedAt);
+    const daysOld = (Date.now() - postedDate.getTime()) / (1000 * 60 * 60 * 24);
+    if (daysOld > 45) return null; // skip stale jobs
+  }
+
   return {
     id: `${firm.source}:${raw.externalId}`,
     firm: firm.name,

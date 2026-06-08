@@ -1,6 +1,9 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { useTheme } from "next-themes";
 import {
   Search,
   MapPin,
@@ -18,7 +21,12 @@ import {
   Briefcase,
   Upload,
   FileText,
-  AlertCircle
+  AlertCircle,
+  UploadCloud,
+  CheckCircle2,
+  LayoutDashboard,
+  BarChart2,
+  BookmarkPlus
 } from "lucide-react";
 import { useJobFilters } from "@/hooks/useJobFilters";
 import { filterJobs, TIERS, ROLES, LOCATIONS, LANGUAGES } from "@/lib/filtering";
@@ -198,6 +206,24 @@ export default function ModernJobBoard({ initialJobs }) {
   const [hideBackups, setHideBackups] = useState(false);
   const [cvAnalysisMap, setCvAnalysisMap] = useState({});
   const [isAnalyzingCV, setIsAnalyzingCV] = useState(false);
+  const { theme, setTheme } = useTheme();
+
+  // Load kanban tasks for status tracking globally if needed
+  const [kanbanTasks, setKanbanTasks] = useState(null);
+  useEffect(() => {
+    const saved = localStorage.getItem("kanban:v1");
+    if (saved) setKanbanTasks(JSON.parse(saved));
+  }, []);
+
+  const saveToKanban = (job) => {
+    let tasks = kanbanTasks || { saved: [], applied: [], interviewing: [], offer: [], rejected: [] };
+    if (!tasks.saved.find(t => t.id === job.id)) {
+      tasks.saved = [job, ...tasks.saved];
+      setKanbanTasks({ ...tasks });
+      localStorage.setItem("kanban:v1", JSON.stringify(tasks));
+      alert("Saved to Kanban Board!");
+    }
+  };
 
   const jobsList = useMemo(() => initialJobs?.length ? initialJobs : JOBS, [initialJobs]);
 
@@ -395,11 +421,22 @@ export default function ModernJobBoard({ initialJobs }) {
   return (
     <div className="h-screen h-[100dvh] flex flex-col bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 font-sans selection:bg-indigo-500/30">
       <header className="sticky top-0 z-30 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 px-6 py-3 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold flex items-center justify-center text-lg leading-none shadow-sm">
-            Q
-          </div>
-          <h1 className="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 hidden sm:block">Quant Jobs</h1>
+        <div className="flex items-center gap-6">
+          <Link href="/" className="font-bold text-xl tracking-tight text-zinc-900 dark:text-white flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white">Q</div>
+            <span className="hidden sm:inline">Quant Jobs</span>
+          </Link>
+          <nav className="hidden md:flex items-center gap-1 bg-zinc-100 dark:bg-zinc-900/50 p-1 rounded-lg border border-zinc-200 dark:border-zinc-800">
+            <Link href="/" className="px-3 py-1.5 text-sm font-medium rounded-md bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-sm border border-zinc-200/50 dark:border-zinc-700/50 flex items-center gap-2">
+              <LayoutDashboard size={16} /> Feed
+            </Link>
+            <Link href="/applications" className="px-3 py-1.5 text-sm font-medium rounded-md text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors flex items-center gap-2">
+              <Briefcase size={16} /> Applications
+            </Link>
+            <Link href="/metrics" className="px-3 py-1.5 text-sm font-medium rounded-md text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors flex items-center gap-2">
+              <BarChart2 size={16} /> Metrics
+            </Link>
+          </nav>
         </div>
         
         <div className="flex-1 max-w-md mx-6">
@@ -416,8 +453,11 @@ export default function ModernJobBoard({ initialJobs }) {
           </div>
         </div>
         
-        <div className="flex gap-2">
-          <button className="lg:hidden p-2 text-zinc-600 hover:bg-zinc-100 rounded-lg" onClick={() => setShowMobileFilters(true)}><Filter size={20}/></button>
+        <div className="flex gap-2 items-center">
+          <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors">
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
+          <button className="lg:hidden p-2 text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg" onClick={() => setShowMobileFilters(true)}><Filter size={20}/></button>
         </div>
       </header>
 
@@ -505,8 +545,11 @@ export default function ModernJobBoard({ initialJobs }) {
                   </h1>
                   
                   <div className="flex flex-wrap items-center gap-3 mb-6">
-                    <button onClick={() => setAssistJob(selectedJob)} className="flex items-center gap-2 rounded-xl bg-zinc-900 dark:bg-white px-5 py-2.5 text-sm font-medium text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors shadow-sm">
-                      <Sparkles size={16} /> Draft Cover Letter
+                    <button onClick={() => saveToKanban(selectedJob)} className="flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 transition-colors shadow-sm">
+                      <BookmarkPlus size={16} /> Save to Kanban
+                    </button>
+                    <button onClick={() => setAssistJob(selectedJob)} className="flex items-center gap-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-5 py-2.5 text-sm font-medium text-zinc-900 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors shadow-sm">
+                      <Sparkles size={16} className="text-amber-500" /> Draft Cover Letter
                     </button>
                     <a href={ensureAbsoluteUrl(selectedJob.applyUrl)} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-xl border border-zinc-200 dark:border-zinc-800 px-5 py-2.5 text-sm font-medium text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
                       Apply via {selectedJob.source === 'greenhouse' ? 'Greenhouse' : 'Company Site'} <ExternalLink size={16} className="text-zinc-400" />

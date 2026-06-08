@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Quant Jobs Auto-Filler",
+  "version": "1.0",
+  "description": "Automatically fills job applications on Greenhouse, Lever, and Workday using your Quant Jobs Dashboard profile.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Auto-Fill Application"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://boards.greenhouse.io/*",
+        "*://jobs.lever.co/*"
+      ],
+      "js": ["content.js"]
+    }
+  ]
+}
