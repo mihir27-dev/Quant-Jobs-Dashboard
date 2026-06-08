@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import JobBoard from "./JobBoard";
+import ModernJobBoard from "./ModernJobBoard";
 import { ACTIVE_FIRMS } from "@/pipeline/firms";
 import { fetchPostings } from "@/pipeline/sources";
 import { assembleJob } from "@/pipeline/normalize";
@@ -114,129 +114,81 @@ async function getLiveJobs() {
 
 function FeedSkeleton() {
   return (
-    <div className="h-screen h-[100dvh] bg-slate-50 text-slate-900 flex flex-col font-sans">
-      {/* Header Skeleton */}
-      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur shadow-sm">
-        <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-xl bg-slate-200 animate-pulse" />
-            <div className="space-y-1">
-              <div className="h-3 w-20 bg-slate-200 rounded animate-pulse" />
-              <div className="h-2 w-28 bg-slate-100 rounded animate-pulse" />
-            </div>
-          </div>
-          <div className="h-8 w-64 bg-slate-100 rounded-lg animate-pulse hidden md:block" />
-          <div className="flex gap-2">
-            {[1, 2, 3].map((n) => (
-              <div key={n} className="h-6 w-12 bg-slate-200/60 rounded-lg animate-pulse" />
-            ))}
-          </div>
+    <div className="h-screen h-[100dvh] flex flex-col bg-zinc-50 dark:bg-zinc-950 font-sans">
+      <header className="sticky top-0 z-30 bg-white/80 dark:bg-zinc-950/80 border-b border-zinc-200 dark:border-zinc-800 px-6 py-3 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-zinc-200 dark:bg-zinc-800 animate-pulse" />
+          <div className="h-4 w-24 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse hidden sm:block" />
         </div>
+        <div className="flex-1 max-w-md mx-6">
+          <div className="h-9 w-full bg-zinc-200 dark:bg-zinc-800 rounded-full animate-pulse" />
+        </div>
+        <div className="w-8 h-8 rounded-lg bg-zinc-200 dark:bg-zinc-800 animate-pulse lg:hidden" />
       </header>
 
-      {/* Main Content Skeleton */}
-      <div className="flex-1 min-h-0 flex max-w-7xl w-full mx-auto overflow-hidden">
-        {/* Sidebar Filter Skeleton */}
-        <aside className="w-64 bg-white border-r border-slate-200/80 p-5 hidden md:flex flex-col gap-6">
-          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-            <div className="h-4 w-20 bg-slate-200 rounded animate-pulse" />
-            <div className="h-3 w-12 bg-slate-200 rounded animate-pulse" />
-          </div>
-          {[1, 2, 3, 4].map((n) => (
-            <div key={n} className="space-y-2">
-              <div className="h-3 w-24 bg-slate-200 rounded animate-pulse" />
-              <div className="space-y-1.5 pl-1">
-                <div className="h-4 w-full bg-slate-100 rounded animate-pulse" />
-                <div className="h-4 w-4/5 bg-slate-100 rounded animate-pulse" />
-                <div className="h-4 w-3/4 bg-slate-100 rounded animate-pulse" />
-              </div>
+      <div className="flex-1 flex overflow-hidden max-w-[1600px] mx-auto w-full">
+        {/* Sidebar */}
+        <aside className="w-64 border-r border-zinc-200 dark:border-zinc-800 p-6 flex-col gap-8 hidden lg:flex shrink-0">
+          <div className="h-4 w-16 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse mb-4" />
+          <div className="h-24 w-full bg-zinc-200 dark:bg-zinc-800 rounded-xl animate-pulse mb-8" />
+          {[1, 2, 3].map((n) => (
+            <div key={n} className="space-y-3 mb-6">
+              <div className="h-3 w-12 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
+              <div className="h-4 w-full bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
+              <div className="h-4 w-5/6 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
             </div>
           ))}
         </aside>
 
-        {/* Listings column Skeleton */}
-        <section className="w-full md:w-80 lg:w-[380px] flex-shrink-0 border-r border-slate-200/80 bg-slate-50 flex flex-col h-full overflow-hidden">
-          <div className="p-4 bg-white border-b border-slate-200/50 flex items-center justify-between flex-shrink-0">
-            <div className="h-4 w-24 bg-slate-200 rounded animate-pulse" />
-            <div className="h-8 w-16 bg-slate-100 rounded-lg animate-pulse md:hidden" />
+        {/* Feed */}
+        <main className="flex-1 flex flex-col md:w-[400px] lg:w-[450px] shrink-0 border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0a0a0c]">
+          <div className="p-5 border-b border-zinc-100 dark:border-zinc-800">
+            <div className="h-4 w-20 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
           </div>
-          <div className="flex-1 overflow-y-auto p-3 space-y-2">
-            {[1, 2, 3, 4].map((n) => (
-              <div key={n} className="rounded-xl border border-slate-200/80 p-4 bg-white space-y-3">
-                <div className="flex justify-between items-start gap-4">
-                  <div className="space-y-2 flex-1">
-                    <div className="flex gap-2">
-                      <div className="h-4 w-20 bg-slate-200 rounded animate-pulse" />
-                      <div className="h-4 w-8 bg-slate-100 rounded animate-pulse" />
-                    </div>
-                    <div className="h-5 w-4/5 bg-slate-200 rounded animate-pulse" />
-                    <div className="h-3 w-1/2 bg-slate-100 rounded animate-pulse" />
-                  </div>
-                  <div className="h-8 w-8 rounded-full bg-slate-200/80 animate-pulse flex-shrink-0" />
+          <div className="p-3 space-y-3">
+            {[1, 2, 3, 4, 5].map((n) => (
+              <div key={n} className="p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
+                <div className="h-3 w-16 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse mb-3" />
+                <div className="h-5 w-3/4 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse mb-4" />
+                <div className="flex gap-2 mb-4">
+                  <div className="h-4 w-16 bg-zinc-200 dark:bg-zinc-800 rounded-full animate-pulse" />
+                  <div className="h-4 w-12 bg-zinc-200 dark:bg-zinc-800 rounded-full animate-pulse" />
                 </div>
-                <div className="pt-2 border-t border-slate-100 flex justify-between">
-                  <div className="h-3 w-16 bg-slate-100 rounded animate-pulse" />
-                  <div className="h-4 w-12 bg-slate-100 rounded animate-pulse" />
+                <div className="flex justify-between">
+                  <div className="h-3 w-12 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
+                  <div className="h-4 w-16 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
                 </div>
               </div>
             ))}
           </div>
-        </section>
+        </main>
 
-        {/* Details Pane Skeleton */}
-        <section className="flex-1 bg-white hidden md:flex flex-col h-full overflow-hidden">
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
-            <div className="border-b border-slate-100 pb-5 space-y-4">
-              <div className="flex justify-between items-start gap-4">
-                <div className="space-y-2.5 flex-1">
-                  <div className="flex gap-2">
-                    <div className="h-4 w-24 bg-slate-200 rounded animate-pulse" />
-                    <div className="h-4 w-12 bg-slate-100 rounded animate-pulse" />
-                  </div>
-                  <div className="h-8 w-3/4 bg-slate-200 rounded animate-pulse" />
-                  <div className="flex gap-4">
-                    <div className="h-4 w-32 bg-slate-100 rounded animate-pulse" />
-                    <div className="h-4 w-28 bg-slate-100 rounded animate-pulse" />
-                  </div>
-                </div>
-                <div className="h-10 w-32 bg-slate-100 rounded-xl animate-pulse" />
-              </div>
-              <div className="flex gap-3 pt-2">
-                <div className="h-10 w-36 bg-slate-200 rounded-xl animate-pulse" />
-                <div className="h-10 w-48 bg-slate-100 rounded-xl animate-pulse" />
-              </div>
+        {/* Details Pane */}
+        <section className="flex-1 flex-col h-full bg-white dark:bg-[#0a0a0c] hidden md:flex p-10 max-w-3xl mx-auto w-full">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-zinc-200 dark:bg-zinc-800 animate-pulse" />
+            <div className="space-y-2">
+              <div className="h-4 w-32 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
+              <div className="h-3 w-24 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
             </div>
-
-            <div className="bg-slate-50 border border-slate-200/60 rounded-xl p-5 space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="h-16 w-16 rounded-full bg-slate-200 animate-pulse" />
-                <div className="space-y-1.5">
-                  <div className="h-4 w-36 bg-slate-200 rounded animate-pulse" />
-                  <div className="h-3 w-64 bg-slate-100 rounded animate-pulse" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4 pt-3 border-t border-slate-200/50">
-                <div className="space-y-2">
-                  <div className="h-4 w-24 bg-slate-200 rounded animate-pulse" />
-                  <div className="h-16 w-full bg-slate-100/50 rounded animate-pulse" />
-                </div>
-                <div className="space-y-2">
-                  <div className="h-4 w-24 bg-slate-200 rounded animate-pulse" />
-                  <div className="h-16 w-full bg-slate-100/50 rounded animate-pulse" />
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <div className="h-4 w-24 bg-slate-200 rounded animate-pulse" />
-              <div className="h-48 w-full bg-slate-100/50 rounded-xl animate-pulse" />
-            </div>
+          </div>
+          <div className="h-8 w-2/3 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse mb-8" />
+          <div className="flex gap-3 mb-8">
+            <div className="h-10 w-40 bg-zinc-200 dark:bg-zinc-800 rounded-xl animate-pulse" />
+            <div className="h-10 w-40 bg-zinc-200 dark:bg-zinc-800 rounded-xl animate-pulse" />
+          </div>
+          <div className="h-48 w-full bg-zinc-200 dark:bg-zinc-800 rounded-2xl animate-pulse mb-8" />
+          <div className="space-y-3">
+            <div className="h-4 w-full bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
+            <div className="h-4 w-full bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
+            <div className="h-4 w-3/4 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
           </div>
         </section>
       </div>
     </div>
   );
 }
+
 
 async function LiveJobBoard() {
   let initialJobs: any[] = [];
@@ -245,7 +197,7 @@ async function LiveJobBoard() {
   } catch (err) {
     console.error("Failed to load live jobs:", err);
   }
-  return <JobBoard initialJobs={initialJobs} />;
+  return <ModernJobBoard initialJobs={initialJobs} />;
 }
 
 export default function Page() {

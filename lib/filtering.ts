@@ -44,7 +44,7 @@ export function filterJobs(jobs: Job[], f: Filters): Job[] {
     // languages are OR within the facet: match if the job lists ANY selected lang
     if (f.languages.length && !f.languages.some((l) => j.languages.includes(l))) return false;
     if (f.firms.length && !f.firms.includes(j.firm)) return false;
-    if (q && !`${j.firm} ${j.title} ${j.role}`.toLowerCase().includes(q)) return false;
+    if (q && !`${j.firm} ${j.title} ${j.role} ${j.location} ${j.locationGroup} ${(j.skills||[]).join(" ")} ${(j.languages||[]).join(" ")}`.toLowerCase().includes(q)) return false;
     return true;
   });
 

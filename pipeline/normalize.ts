@@ -12,8 +12,17 @@ const ROLE_RULES: Array<[RegExp, RoleType]> = [
 ];
 
 export function classifyRole(title: string, desc: string): RoleType | null {
+  // First pass: Try to classify strictly based on the job title (highly accurate)
+  for (const [re, role] of ROLE_RULES) {
+    if (re.test(title)) return role;
+  }
+  
+  // Second pass: Fallback to the description if title is ambiguous
   const hay = `${title} ${desc}`;
-  for (const [re, role] of ROLE_RULES) if (re.test(hay)) return role;
+  for (const [re, role] of ROLE_RULES) {
+    if (re.test(hay)) return role;
+  }
+  
   return null; // unclassifiable → caller drops it, keeping the board clean
 }
 

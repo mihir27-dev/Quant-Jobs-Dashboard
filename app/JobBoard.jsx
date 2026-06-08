@@ -278,8 +278,9 @@ const ensureAbsoluteUrl = (url) => {
   if (trimmed.startsWith("//")) {
     return `https:${trimmed}`;
   }
+  // normalize.ts handles standard fallbacks, so just prefix with https://
   if (trimmed.startsWith("/")) {
-    return `https://boards.greenhouse.io${trimmed}`; // typical fallback
+    return `https://${trimmed.substring(1)}`;
   }
   return `https://${trimmed}`;
 };
@@ -293,6 +294,29 @@ export default function QuantJobFinderV2({ initialJobs }) {
   
   // Track selected job. Default to null, will set to first matched on load.
   const [selectedJobId, setSelectedJobId] = useState(null);
+
+  // CV Analysis State
+  const [cvAnalysisMap, setCvAnalysisMap] = useState({});
+  const [isAnalyzingCV, setIsAnalyzingCV] = useState(false);
+
+  const analyzeCV = async (job) => {
+    setIsAnalyzingCV(true);
+    try {
+      const res = await fetch("/api/cv-scanner", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ profile, job }),
+      });
+      const data = await res.json();
+      if (!data.error) {
+        setCvAnalysisMap(prev => ({ ...prev, [job.id]: data }));
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsAnalyzingCV(false);
+    }
+  };
   
   // Mobile search drawer/sidebar toggle state
   const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -607,34 +631,8 @@ export default function QuantJobFinderV2({ initialJobs }) {
     
       return (
         <div className={`h-screen h-[100dvh] relative overflow-hidden ${
-          theme === "dark" ? "dark bg-[#030508] text-slate-100" : "bg-slate-50 text-slate-900"
+          theme === "dark" ? "dark bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-900"
         } flex flex-col font-sans antialiased transition-colors duration-300`}>
-          {/* Inject Custom Style Block for 2050 Cyber-Quant UI */}
-          <style>{`
-            @keyframes scan-sweep {
-              0% { top: 0%; opacity: 0; }
-              10% { opacity: 1; }
-              90% { opacity: 1; }
-              100% { top: 100%; opacity: 0; }
-            }
-            @keyframes active-laser {
-              0% { background-position: 0 0; }
-              100% { background-position: 40px 0; }
-            }
-            .laser-line-animated {
-              background: linear-gradient(90deg, #10b981 0%, #00f0ff 50%, #10b981 100%);
-              background-size: 200% 100%;
-              animation: active-laser 1.5s linear infinite;
-            }
-          `}</style>
-          
-          {/* 2050 Cyber-grid & Ambient Laser Scanline */}
-          {theme === "dark" && (
-            <>
-              <div className="absolute inset-0 cyber-grid pointer-events-none z-0 opacity-40" />
-              <div className="scanline z-50 pointer-events-none" />
-            </>
-          )}
 
       {/* Premium Header */}
       <header className={`sticky top-0 z-30 border-b transition-all relative ${
@@ -1132,13 +1130,21 @@ export default function QuantJobFinderV2({ initialJobs }) {
                     >
                       <Sparkles size={15} /> Apply Assistant
                     </button>
+                    <button
+                      onClick={() => analyzeCV(selectedJob)}
+                      disabled={isAnalyzingCV}
+                      className="flex items-center gap-1.5 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-indigo-700 disabled:opacity-60 transition-all hover:scale-[1.01] shadow-md shadow-indigo-600/10 cursor-pointer"
+                    >
+                      {isAnalyzingCV ? <Loader2 size={15} className="animate-spin" /> : <FileText size={15} />}
+                      {isAnalyzingCV ? "Scanning CV..." : "Scan CV for ATS Match"}
+                    </button>
                     <a
                       href={ensureAbsoluteUrl(selectedJob.applyUrl)}
                       target="_blank"
                       rel="noreferrer"
                       className={`flex items-center gap-1.5 rounded-xl border px-5 py-2.5 text-sm font-bold transition-all ${
                         theme === "dark"
-                          ? "border-emerald-500/20 bg-slate-900 text-emerald-450 hover:bg-slate-800 hover:border-emerald-500/30"
+                          ? "border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
                           : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300"
                       }`}
                     >
@@ -1298,6 +1304,50 @@ export default function QuantJobFinderV2({ initialJobs }) {
                 </div>
 
                 {/* Job description section */}
+                {cvAnalysisMap[selectedJob.id] && (
+                  <div className={`border p-5 rounded-xl space-y-4 shadow-sm ${
+                    theme === "dark" ? "bg-indigo-950/20 border-indigo-900/50" : "bg-indigo-50/50 border-indigo-100"
+                  }`}>
+                    <div className="flex items-center gap-4">
+                      <div className="relative flex h-16 w-16 flex-shrink-0 items-center justify-center">
+                        <svg className="h-16 w-16 -rotate-90" viewBox="0 0 60 60">
+                          <circle cx="30" cy="30" r={24} fill="none" stroke="currentColor" strokeWidth="5" className={theme === "dark" ? "text-slate-800" : "text-slate-200"} />
+                          <circle cx="30" cy="30" r={24} fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeDasharray={150.796} strokeDashoffset={150.796 - (cvAnalysisMap[selectedJob.id].atsScore / 100) * 150.796} className={cvAnalysisMap[selectedJob.id].atsScore >= 80 ? "text-emerald-500" : cvAnalysisMap[selectedJob.id].atsScore >= 60 ? "text-amber-500" : "text-rose-500"} />
+                        </svg>
+                        <span className={`absolute text-sm font-black tabular-nums ${theme === "dark" ? "text-slate-200" : "text-slate-800"}`}>{cvAnalysisMap[selectedJob.id].atsScore}</span>
+                      </div>
+                      <div>
+                        <h3 className={`text-sm font-extrabold ${theme === "dark" ? "text-indigo-400" : "text-indigo-700"}`}>AI ATS Match Score</h3>
+                        <p className={`text-xs mt-0.5 leading-relaxed ${theme === "dark" ? "text-slate-400" : "text-slate-600"}`}>
+                          Based on a deep analysis of your CV against the job description.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {cvAnalysisMap[selectedJob.id].recommendations?.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        <h4 className={`text-xs font-bold uppercase tracking-wider ${theme === "dark" ? "text-slate-400" : "text-slate-500"}`}>Recommendations to improve your CV:</h4>
+                        <ul className="space-y-1.5 text-sm list-disc pl-5">
+                          {cvAnalysisMap[selectedJob.id].recommendations.map((rec, i) => (
+                            <li key={i} className={theme === "dark" ? "text-slate-300" : "text-slate-700"}>{rec}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    
+                    {cvAnalysisMap[selectedJob.id].missingKeywords?.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        <h4 className={`text-xs font-bold uppercase tracking-wider ${theme === "dark" ? "text-slate-400" : "text-slate-500"}`}>Missing Keywords to Add:</h4>
+                        <div className="flex flex-wrap gap-1.5">
+                          {cvAnalysisMap[selectedJob.id].missingKeywords.map((kw, i) => (
+                            <span key={i} className={`text-[10px] font-bold px-2 py-0.5 rounded border ${theme === "dark" ? "bg-slate-900 border-slate-700 text-slate-300" : "bg-white border-slate-200 text-slate-600"}`}>{kw}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div className="space-y-3">
                   <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 flex items-center gap-1 font-mono">
                     <Briefcase size={14} className="text-slate-400 dark:text-emerald-500/40" /> FILE_DOSSIER // J_DESCRIPTION

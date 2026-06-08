@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #030508;
-  --foreground: #f1f5f9;
+  --background: #fafafa; /* zinc-50 */
+  --foreground: #09090b; /* zinc-950 */
 }
 
 @theme inline {
@@ -12,10 +12,10 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: light) {
+@media (prefers-color-scheme: dark) {
   :root {
-    --background: #f8fafc;
-    --foreground: #0f172a;
+    --background: #09090b; /* zinc-950 */
+    --foreground: #fafafa; /* zinc-50 */
   }
 }
 
@@ -26,78 +26,30 @@ body {
   overflow: hidden;
 }
 
-@keyframes laser-sweep {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(300%); }
-}
-
-@keyframes neon-pulse {
-  0%, 100% { opacity: 0.35; box-shadow: 0 0 12px rgba(16, 185, 129, 0.15); }
-  50% { opacity: 0.85; box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
-}
-
-@keyframes grid-move {
-  0% { background-position: 0 0; }
-  100% { background-position: 0 24px; }
-}
-
-.cyber-grid {
-  background-image: 
-    linear-gradient(rgba(16, 185, 129, 0.015) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(16, 185, 129, 0.015) 1px, transparent 1px);
-  background-size: 24px 24px;
-  animation: grid-move 20s linear infinite;
-}
-
-.scanline {
-  background: linear-gradient(
-    to bottom,
-    rgba(16, 185, 129, 0) 0%,
-    rgba(16, 185, 129, 0.08) 50%,
-    rgba(16, 185, 129, 0) 100%
-  );
-  height: 120px;
-  width: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  pointer-events: none;
-  z-index: 1;
-  animation: laser-sweep 8s linear infinite;
-}
-
-.glow-emerald {
-  box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.25);
-}
-
-.glow-text-emerald {
-  text-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
-}
-
-.glow-cyan {
-  box-shadow: 0 0 25px -5px rgba(6, 180, 212, 0.25);
-}
-
-.glow-text-cyan {
-  text-shadow: 0 0 8px rgba(6, 180, 212, 0.6);
-}
-
-/* Custom scrollbar matching futuristic dashboard styling */
+/* Custom scrollbar for modern aesthetic */
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.15);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(16, 185, 129, 0.2);
+  background: rgba(161, 161, 170, 0.3); /* zinc-400 */
   border-radius: 99px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(16, 185, 129, 0.45);
+  background: rgba(161, 161, 170, 0.6);
 }
 
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-thumb {
+    background: rgba(82, 82, 91, 0.5); /* zinc-600 */
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(82, 82, 91, 0.8);
+  }
+}
